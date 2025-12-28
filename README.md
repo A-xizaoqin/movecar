@@ -126,7 +126,36 @@
 
 ### 效果展示
 
-![挪车码效果](IMG_1108.JPG)
+![挪车码效果](demo.jpg)
+
+## 安全设置（推荐）
+
+为防止境外恶意攻击，建议只允许中国地区访问：
+
+### 方法一：使用 WAF 规则（推荐）
+
+1. 进入 Cloudflare Dashboard → 你的域名
+2. 左侧菜单点击「Security」→「WAF」
+3. 点击「Create rule」
+4. 规则设置：
+   - Rule name：`Block non-CN traffic`
+   - If incoming requests match：`Country does not equal China`
+   - Then：`Block`
+5. 点击「Deploy」
+
+### 方法二：在 Worker 代码中过滤
+
+在 `movecar.js` 开头添加：
+
+```javascript
+// 只允许中国地区访问
+const country = request.cf?.country;
+if (country && country !== 'CN') {
+  return new Response('Access Denied', { status: 403 });
+}
+```
+
+> ⚠️ 曾经被境外流量攻击过，强烈建议开启地区限制！
 
 ## License
 
