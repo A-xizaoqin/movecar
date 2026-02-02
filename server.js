@@ -872,7 +872,7 @@ function renderMainPage(origin) {
   </body>
   </html>
   `;
-  return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+  return html;
 }
 
 function renderOwnerPage() {
@@ -1159,7 +1159,7 @@ function renderOwnerPage() {
   </body>
   </html>
   `;
-  return new Response(html, { headers: { 'Content-Type': 'text/html;charset=UTF-8' } });
+  return html;
 }
 
 app.listen(PORT, () => {
