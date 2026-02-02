@@ -126,7 +126,12 @@ app.post('/api/notify', async (req, res) => {
     }
 
     if (BARK_URL) {
-      const barkApiUrl = `${BARK_URL}/挪车请求/${encodeURIComponent(notifyBody)}?group=MoveCar&level=critical&call=1&sound=minuet&icon=https://cdn-icons-png.flaticon.com/512/741/741407.png&url=${confirmUrl}`;
+      // 修复: 对 URL 中的中文标题进行编码，防止 Node.js fetch 报错 ERR_UNESCAPED_CHARACTERS
+      const title = encodeURIComponent('挪车请求');
+      const body = encodeURIComponent(notifyBody);
+      // Ensure the Bark URL doesn't have a trailing slash to avoid double slashes
+      const cleanBarkUrl = BARK_URL.replace(/\/$/, '');
+      const barkApiUrl = `${cleanBarkUrl}/${title}/${body}?group=MoveCar&level=critical&call=1&sound=minuet&icon=https://cdn-icons-png.flaticon.com/512/741/741407.png&url=${confirmUrl}`;
       try {
         await fetch(barkApiUrl);
       } catch (e) {
