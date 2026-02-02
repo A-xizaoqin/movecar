@@ -1,0 +1,13 @@
+version: '3'
+services:
+  movecar:
+    build: .
+    container_name: movecar
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - BARK_URL=https://api.day.app/YOUR_KEY
+      - PHONE_NUMBER=
+    restart: unless-stopped
