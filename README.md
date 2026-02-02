@@ -1,12 +1,8 @@
 # MoveCar - 挪车通知系统
 
-基于 Cloudflare Workers 的智能挪车通知系统，扫码即可通知车主，保护双方隐私。
+**Docker 版** | 基于 Node.js 的智能挪车通知系统，扫码即可通知车主，保护双方隐私。
 
-## 界面预览
-
-| 请求者页面 | 车主页面 |
-|:---:|:---:|
-| [🔗 在线预览](https://htmlpreview.github.io/?https://github.com/lesnolie/movecar/blob/main/preview-requester.html) | [🔗 在线预览](https://htmlpreview.github.io/?https://github.com/lesnolie/movecar/blob/main/preview-owner.html) |
+![挪车码效果](demo.jpg)
 
 ## 为什么需要它？
 
@@ -20,15 +16,64 @@
 - ✅ **不暴露电话号码** - 通过推送通知联系，保护隐私
 - ✅ **双向位置共享** - 车主可确认请求者确实在车旁
 - ✅ **无位置延迟 30 秒** - 降低恶意骚扰的动力
-- ✅ **免费部署** - Cloudflare Workers 免费额度完全够用
-- ✅ **无需服务器** - Serverless 架构，零运维成本
+- ✅ **Docker 一键部署** - 轻松部署在任何支持 Docker 的服务器上
+- ✅ **数据私有化** - 所有数据存储在本地，安全可控
 
-## 为什么使用 Bark 推送？
+## 配置教程
 
-- 🔔 支持「紧急 / 重要 / 警告」通知级别
-- 🎵 可自定义通知音效
-- 🌙 **即使开启勿扰模式也能收到提醒**
-- 📱 安卓用户：原理相通，将 Bark 替换为安卓推送服务即可（如 Pushplus、Server酱）
+### 方式一：使用 Docker Compose 部署（推荐）
+
+1. 创建一个目录并进入：
+   ```bash
+   mkdir movecar && cd movecar
+   ```
+
+2. 创建 `docker-compose.yml` 文件：
+   ```yaml
+   version: '3'
+
+   services:
+     movecar:
+       # 使用官方最新镜像
+       image: ghcr.io/a-xizaoqin/movecar:main
+       container_name: movecar
+       ports:
+         - "3000:3000"
+       volumes:
+         # 数据持久化，防止重启丢失状态
+         - ./data:/app/data
+       environment:
+         # 必填：你的 Bark 推送地址 (例如 https://api.day.app/你的Key)
+         - BARK_URL=https://api.day.app/xxxxxxxxxxxx
+         # 选填：备用联系电话 (显示在成功页面)
+         - PHONE_NUMBER=
+       restart: unless-stopped
+   ```
+
+3. 启动服务：
+   ```bash
+   docker-compose up -d
+   ```
+
+4. 访问 `http://你的服务器IP:3000` 即可看到挪车页面。
+
+### 方式二：手动构建部署
+
+如果你想修改代码后自行构建：
+
+```bash
+git clone https://github.com/A-xizaoqin/movecar.git
+cd movecar
+docker-compose up -d --build
+```
+
+## 制作挪车码
+
+### 生成二维码
+
+1. 部署完成后，你的访问地址是 `http://你的IP:3000`（如果有域名，建议配置反向代理开启 HTTPS）。
+2. 使用任意二维码生成工具（如 草料二维码）将你的地址生成二维码。
+3. 打印出来贴在车上即可。
 
 ## 使用流程
 
@@ -47,42 +92,6 @@
 3. 查看请求者位置（判断是否真的在车旁）
 4. 点击确认，分享自己位置给对方
 
-### 流程图
+## License
 
-```
-请求者                              车主
-  │                                  │
-  ├─ 扫码进入页面                     │
-  ├─ 填写留言、获取位置                │
-  ├─ 点击发送                         │
-  │   ├─ 有位置 → 立即推送 ──────────→ 收到通知
-  │   └─ 无位置 → 30秒后推送 ────────→ 收到通知
-  │                                  │
-  ├─ 等待中...                        ├─ 查看请求者位置
-  │                                  ├─ 点击确认，分享位置
-  │                                  │
-  ├─ 收到确认，查看车主位置 ←──────────┤
-  │                                  │
-  ▼                                  ▼
-```
-
-## 部署教程
-version: '3'
-
-services:
-  movecar:
-    # 自动拉取我刚配置好的镜像（构建需要几分钟）
-    image: ghcr.io/a-xizaoqin/movecar:main
-    container_name: movecar
-    ports:
-      - "3000:3000"
-    volumes:
-      # 数据持久化，防止重启丢失
-      - ./data:/app/data
-    environment:
-      # 必填：你的 Bark 推送地址
-      - BARK_URL=https://api.day.app/换成你的KEY
-      # 选填：备用联系电话
-      - PHONE_NUMBER=
-    restart: unless-stopped
-
+MIT
